@@ -42,14 +42,16 @@ const geoUrl =
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "users"), (snapshot) => {
-      const usersData = snapshot.docs.map((doc) => doc.data());
-      setUsers(usersData);
-    });
+  const [recentSubscribers, setRecentSubscribers] = useState([]);
 
-    return () => unsub(); // Cleanup on unmount
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "subscriptions"), (snapshot) => {
+      const recentSubs = snapshot.docs.map(doc => doc.data());
+      setRecentSubscribers(recentSubs); // Define this with useState
+    });
+    return () => unsub();
   }, []);
+  
   const lineData = {
     labels: [
       "Jan",
@@ -116,11 +118,59 @@ const Dashboard = () => {
     { name: "Sydney", coordinates: [151.2, -33.8] },
   ];
 
+const [liveVisits, setLiveVisits] = useState(0);
+const [monthlyUsers, setMonthlyUsers] = useState(0);
+const [newSignUps, setNewSignUps] = useState(0);
+const [subscriptions, setSubscriptions] = useState(0);
+const [usersByCountry, setUsersByCountry] = useState({});
+
   const [blogs, setBlogs] = useState([]);
   const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [viewBlogs, setViewBlogs] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const firstUserName = users[0]?.email?.split("@")[0] || "User";
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "users"), (snapshot) => {
+      const usersData = snapshot.docs.map((doc) => doc.data());
+  
+      // Assuming usersData is an array of user documents, you can count and calculate your metrics here
+      let liveVisitsCount = 0;
+      let monthlyUsersCount = 0;
+      let newSignUpsCount = 0;
+      let subscriptionsCount = 0;
+      let countryData = {};
+  
+      usersData.forEach((user) => {
+        if (user.isOnline) liveVisitsCount++;
+        if (user.subscription) subscriptionsCount++;
+  
+        // Assuming user.createdAt is a timestamp of when the user signed up
+        const createdAt = user.createdAt?.seconds 
+  ? new Date(user.createdAt.seconds * 1000) 
+  : new Date(user.createdAt);
+
+if (createdAt.getMonth() === new Date().getMonth()) {
+  newSignUpsCount++;
+}
+
+  
+        // Group users by country
+        if (user.country) {
+          countryData[user.country] = (countryData[user.country] || 0) + 1;
+        }
+      });
+  
+      setLiveVisits(liveVisitsCount);
+      setMonthlyUsers(usersData.length);
+      setNewSignUps(newSignUpsCount);
+      setSubscriptions(subscriptionsCount);
+      setUsersByCountry(countryData);
+    });
+  
+    return () => unsub(); // Cleanup on unmount
+  }, []);
+  
 
   const navigate = useNavigate();
 
@@ -176,13 +226,7 @@ const Dashboard = () => {
 
       <div style={{ marginTop: "20px" }}>
         <h3>Recent Users</h3>
-        <ul>
-          {users.map((user, index) => (
-            <li key={index}>
-              {user.email?.slice(0, 6)}...
-            </li>
-          ))}
-        </ul>
+        
       </div>
     </div>
           <div className="header-actions">
@@ -192,26 +236,30 @@ const Dashboard = () => {
         </div>
 
         <div className="stats-section">
-          <div className="stat-card">
-            <div className="stat-label">Live Visits</div>
-            <div className="stat-value">500</div>
-            <div className="stat-change positive">+12.6%</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Monthly Users</div>
-            <div className="stat-value">3.6K</div>
-            <div className="stat-change negative">-16.2%</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">New Sign Ups</div>
-            <div className="stat-value">456</div>
-            <div className="stat-change positive">+13.1%</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Subscriptions</div>
-            <div className="stat-value">2.3K</div>
-            <div className="stat-change positive">+35.3%</div>
-          </div>
+        <div className="stat-card">
+  <div className="stat-label">Live Visits</div>
+  <div className="stat-value">{liveVisits}</div>
+  <div className="stat-change positive">+12.6%</div>
+</div>
+
+<div className="stat-card">
+  <div className="stat-label">Monthly Users</div>
+  <div className="stat-value">{monthlyUsers}</div>
+  <div className="stat-change negative">-16.2%</div>
+</div>
+
+<div className="stat-card">
+  <div className="stat-label">New Sign Ups</div>
+  <div className="stat-value">{newSignUps}</div>
+  <div className="stat-change positive">+13.1%</div>
+</div>
+
+<div className="stat-card">
+  <div className="stat-label">Subscriptions</div>
+  <div className="stat-value">{subscriptions}</div>
+  <div className="stat-change positive">+35.3%</div>
+</div>
+
         </div>
 
         <div className="chart-container">
@@ -258,7 +306,7 @@ const Dashboard = () => {
                 <div className="semi-arc-value">
                   <br></br>
                   <br></br>
-                  <h2>5,643</h2>
+                  <h2>11</h2>
                   <p>Users by device</p>
                   <br></br>
                   <br></br>
@@ -270,17 +318,17 @@ const Dashboard = () => {
                 <br></br>
                 <li>
                   <span className="dot purple"></span>Desktop users{" "}
-                  <span className="count">4,100</span>
+                  <span className="count">7</span>
                 </li>
                 <br></br>
                 <li>
                   <span className="dot blue"></span>Phone app users{" "}
-                  <span className="count">643</span>
+                  <span className="count">0</span>
                 </li>
                 <br></br>
                 <li>
                   <span className="dot green"></span>Laptop users{" "}
-                  <span className="count">1,000</span>
+                  <span className="count">4</span>
                 </li>
               </ul>
             </div>
@@ -341,46 +389,59 @@ const Dashboard = () => {
         </div>
 
         <div className="map-section">
-          <div className="country-stats">
-            <h4>Users by country</h4>
-            <p className="total-users">
-              12.4K <span className="positive">+26.9%</span>
-            </p>
-            <ul className="country-list">
-              <li>
-                <span className="bar us"></span> United States - 30%
-              </li>
-              <li>
-                <span className="bar uk"></span> United Kingdom - 25%
-              </li>
-              <li>
-                <span className="bar ca"></span> Canada - 25%
-              </li>
-              <li>
-                <span className="bar au"></span> Australia - 10%
-              </li>
-              <li>
-                <span className="bar es"></span> Spain - 10%
-              </li>
-            </ul>
+        <div className="country-stats">
+  <h4>Users by Country</h4>
+  <p className="total-users">
+    {Object.values(usersByCountry).reduce((a, b) => a + b, 0)} users
+  </p>
+  <ul className="country-list">
+  {Object.entries(usersByCountry).map(([country, count]) => {
+    const totalUsers = Object.values(usersByCountry).reduce((a, b) => a + b, 0);
+    const percentage = (count / totalUsers) * 100;
+
+    // Generate random color for the bar using HSL
+    const randomColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+
+    return (
+      <li key={country} className="country-bar-item">
+        <div className="country-label">{country}</div>
+        <div className="country-bar-wrapper">
+          <div className="country-bar">
+            <div
+              className="country-bar-fill"
+              style={{
+                width: `${percentage}%`,
+                backgroundColor: randomColor,
+              }}
+            ></div>
           </div>
+          <span className="country-percentage">{Math.round(percentage)}%</span>
+        </div>
+      </li>
+    );
+  })}
+</ul>
+
+
+</div>
+
 
           <div className="dot-map-container">
             <img src={dotMap} alt="Dotted World Map" className="dot-map-img" />
             {/* Glowing active user points */}
             <div
               className="glow-dot"
-              style={{ top: "28%", left: "26%", backgroundColor: "#CB3CFF" }}
+              style={{ top: "28%", left: "26%", backgroundColor: "pink" }}
             ></div>{" "}
             {/* US */}
             <div
               className="glow-dot"
-              style={{ top: "24%", left: "42%", backgroundColor: "#A3B1FF" }}
+              style={{ top: "24%", left: "42%", backgroundColor: "green" }}
             ></div>{" "}
             {/* UK */}
             <div
               className="glow-dot"
-              style={{ top: "30%", left: "46%", backgroundColor: "#FFFFFF" }}
+              style={{ top: "30%", left: "46%", backgroundColor: "lightgreen" }}
             ></div>{" "}
             {/* Europe */}
             <div

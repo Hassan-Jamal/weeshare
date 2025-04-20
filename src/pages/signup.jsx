@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import "./signup.css";
 import logo from "../assets/WS.png";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase"; // ⬅️ make sure db is imported
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"; // ⬅️ Firestore
 import { useNavigate, Link } from "react-router-dom";
 
 export default function SignUp() {
@@ -13,7 +14,18 @@ export default function SignUp() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save user info to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        createdAt: serverTimestamp(),
+        isOnline: true,
+        subscription: "",
+        country: ""
+      });
+
       alert("Account created successfully!");
       navigate("/login");
     } catch (error) {

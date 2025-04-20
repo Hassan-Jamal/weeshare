@@ -510,16 +510,6 @@ body, html {
     gap: 30px;
   }
   
-  .country-stats {
-    flex: 1;
-    color: white;
-  }
-  
-  .country-stats h4 {
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-  
   .total-users {
     font-size: 22px;
     font-weight: bold;
@@ -535,81 +525,7 @@ body, html {
     margin-left: 8px;
   }
   
-  .country-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .country-list li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    font-size: 14px;
-    color: #ccc;
-  }
-  
-  .country-list .bar {
-    display: inline-block;
-    height: 8px;
-    background-color: #333;
-    border-radius: 4px;
-    margin-right: 10px;
-    position: relative;
-    width: 140px;
-    overflow: hidden;
-  }
-  
-  .bar.us::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 30%;
-    background: #CB3CFF;
-  }
-  
-  .bar.uk::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 25%;
-    background: #0038FF;
-  }
-  
-  .bar.ca::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 25%;
-    background: #8884d8;
-  }
-  
-  .bar.au::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 10%;
-    background: #00C2FF;
-  }
-  
-  .bar.es::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 10%;
-    background: #FFFFFF;
-  }
-  
+ 
   .world-map-wrapper {
     position: relative;
     background: radial-gradient(ellipse at center, #0e0e1b 0%, #090a12 100%);
@@ -624,20 +540,12 @@ body, html {
     height: auto;
   }
   
-  .country-stats h4 {
-    margin-bottom: 10px;
-    color: #fff;
-  }
+  
   
   .total-users {
     font-size: 1.4rem;
     color: #fff;
     margin-bottom: 15px;
-  }
-  
-  .total-users .positive {
-    color: #00ffae;
-    font-weight: 600;
   }
   
   .country-list {
@@ -646,77 +554,44 @@ body, html {
     margin: 0;
   }
   
-  .country-list li {
-    margin: 8px 0;
-    color: #ccc;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
+  .country-bar-item {
+    margin-bottom: 15px;
   }
   
-  .country-list .bar {
-    display: inline-block;
-    height: 6px;
-    width: 100px;
+  .country-label {
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  
+  .country-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .country-bar {
+    flex: 1;
+    height: 12px;
+    background-color: #333;
     border-radius: 5px;
-    margin-right: 10px;
-    background-color: #222;
+    overflow: hidden;
     position: relative;
   }
   
-  .country-list .bar.us::after {
-    content: "";
+  .country-bar-fill {
     position: absolute;
     top: 0;
     left: 0;
-    height: 6px;
-    width: 30%;
-    background-color: #CB3CFF;
+    height: 100%;
     border-radius: 5px;
+    transition: width 0.4s ease;
   }
-  
-  .country-list .bar.uk::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 6px;
-    width: 25%;
-    background-color: #0038FF;
-    border-radius: 5px;
-  }
-  
-  .country-list .bar.ca::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 6px;
-    width: 25%;
-    background-color: #00C2FF;
-    border-radius: 5px;
-  }
-  
-  .country-list .bar.au::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 6px;
-    width: 10%;
-    background-color: #00ffae;
-    border-radius: 5px;
-  }
-  
-  .country-list .bar.es::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 6px;
-    width: 10%;
-    background-color: #ff0080;
-    border-radius: 5px;
+    
+  .country-percentage {
+    color: #ccc;
+    font-size: 13px;
+    min-width: 40px;
   }
   
   .dot-map-container {
