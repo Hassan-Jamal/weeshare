@@ -4,7 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore"; // ✅ Make sure this is imported
 
 const firebaseConfig = {
- 
+  
 };
 
 const app = initializeApp(firebaseConfig);

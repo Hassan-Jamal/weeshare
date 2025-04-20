@@ -6,6 +6,10 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // ✅ Make sure this is correct
+import { jsPDF } from "jspdf";
+import { getDocs } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
 
 import {
   ComposableMap,
@@ -37,11 +41,44 @@ ChartJS.register(
   Legend
 );
 
+function ExportButton() {
+  const handleExport = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const emails = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.email) {
+          emails.push(data.email);
+        }
+      });
+
+      // Create PDF
+      const doc = new jsPDF();
+      doc.text("User Emails List", 10, 10);
+
+      emails.forEach((email, index) => {
+        doc.text(`${index + 1}. ${email}`, 10, 20 + index * 10);
+      });
+
+      doc.save("user_emails.pdf");
+    } catch (error) {
+      console.error("Error exporting emails:", error);
+    }
+  };
+
+  return (
+    <button className="export-btn" onClick={handleExport}>
+      Export Data ⬇
+    </button>
+  );
+}
+
 const geoUrl =
   "https://raw.githubusercontent.com/deldersveld/topojson/master/world-countries.json";
 
 const Dashboard = () => {
-  const [users, setUsers] = useState([]);
   const [recentSubscribers, setRecentSubscribers] = useState([]);
 
   useEffect(() => {
@@ -128,7 +165,6 @@ const [usersByCountry, setUsersByCountry] = useState({});
   const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [viewBlogs, setViewBlogs] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const firstUserName = users[0]?.email?.split("@")[0] || "User";
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "users"), (snapshot) => {
@@ -171,6 +207,7 @@ if (createdAt.getMonth() === new Date().getMonth()) {
     return () => unsub(); // Cleanup on unmount
   }, []);
   
+  
 
   const navigate = useNavigate();
 
@@ -182,6 +219,24 @@ if (createdAt.getMonth() === new Date().getMonth()) {
       console.error("Logout error:", error);
     }
     };
+
+    const [userEmail, setUserEmail] = useState("");
+
+    useEffect(() => {
+      const auth = getAuth();
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user && user.email) {
+          setUserEmail(user.email);
+        } else {
+          setUserEmail("");
+        }
+      });
+  
+      return () => unsubscribe();
+    }, []);
+  
+    const userName = userEmail ? userEmail.split("@")[0] : "User";
+  
 
   return (
     <div className="dashboard-wrapper">
@@ -221,7 +276,8 @@ if (createdAt.getMonth() === new Date().getMonth()) {
       <main className="main-content">
         <div className="top-header">
         <div>
-      <h2>Welcome back, {firstUserName} 👋</h2>
+        <h2>Welcome back, {userName} 👋</h2>
+
       <p>This is the Admin Dashboard. Track the Analytics here.</p>
 
       <div style={{ marginTop: "20px" }}>
@@ -230,7 +286,7 @@ if (createdAt.getMonth() === new Date().getMonth()) {
       </div>
     </div>
           <div className="header-actions">
-            <button className="export-btn">Export data ⬇</button>
+          <ExportButton />
             <button className="create-report">Create report</button>
           </div>
         </div>
@@ -275,7 +331,7 @@ if (createdAt.getMonth() === new Date().getMonth()) {
             <h2>Reports overview</h2>
             <div className="report-actions">
               <button className="select-date">📅 Select date</button>
-              <button className="export-data">⬇ Export data</button>
+              <ExportButton />
               <button className="create-report">Create report</button>
             </div>
           </div>
@@ -306,7 +362,7 @@ if (createdAt.getMonth() === new Date().getMonth()) {
                 <div className="semi-arc-value">
                   <br></br>
                   <br></br>
-                  <h2>11</h2>
+                  <h2>12</h2>
                   <p>Users by device</p>
                   <br></br>
                   <br></br>
@@ -318,7 +374,7 @@ if (createdAt.getMonth() === new Date().getMonth()) {
                 <br></br>
                 <li>
                   <span className="dot purple"></span>Desktop users{" "}
-                  <span className="count">7</span>
+                  <span className="count">5</span>
                 </li>
                 <br></br>
                 <li>
@@ -328,7 +384,7 @@ if (createdAt.getMonth() === new Date().getMonth()) {
                 <br></br>
                 <li>
                   <span className="dot green"></span>Laptop users{" "}
-                  <span className="count">4</span>
+                  <span className="count">7</span>
                 </li>
               </ul>
             </div>
