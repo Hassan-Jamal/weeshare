@@ -155,7 +155,12 @@ const Dashboard = () => {
           <button className="nav-item">Users</button>
           <button className="nav-item">Flagged Posts</button>
           <button className="nav-item">Advertisements</button>
-          <button className="nav-item">Blogs</button>
+          <button
+        className="nav-item"
+        onClick={() => navigate('/blogs')}
+      >
+        Blogs
+      </button>
         </div>
         <div className="sidebar-button logout-button" onClick={handleLogout}>
       <FiLogOut className="icon" />
